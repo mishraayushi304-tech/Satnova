@@ -1,0 +1,46 @@
+# Environment Variables
+.env
+*.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python cache & artifacts
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+backend/venv/
+env/
+.venv/
+
+# Testing & Coverage
+.pytest_cache/
+backend/.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+logs/
+backend/logs/
+*.log
+
+# Uploaded files and generated reports
+uploads/
+backend/uploads/
+backend/reports/
+!uploads/.gitkeep
+!backend/uploads/.gitkeep
+
+# IDE / Editor folders
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

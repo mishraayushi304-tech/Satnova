@@ -1,0 +1,367 @@
+{
+  "info": {
+    "_postman_id": "satnova-isro-ps167-v1",
+    "name": "SatNova — ISRO SIH PS-167 API Collection",
+    "description": "Comprehensive Postman collection for SatNova: Satellite Image Ingestion, GeoTIFF Metadata, LangGraph AI Query Processing, and ISRO PDF Intelligence Reports.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "image_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "report_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. System Health & Root",
+      "item": [
+        {
+          "name": "Root Information",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Image Ingestion",
+      "item": [
+        {
+          "name": "Upload Single Satellite Image",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.image_id) {",
+                  "    pm.collectionVariables.set('image_id', jsonData.image_id);",
+                  "    console.log('Saved image_id to collection variable: ' + jsonData.image_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Select any .tif, .tiff, .png, or .jpg satellite image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload"]
+            }
+          }
+        },
+        {
+          "name": "Upload Bi-Temporal Image Pair",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "before_file",
+                  "type": "file",
+                  "description": "Pre-event satellite image"
+                },
+                {
+                  "key": "after_file",
+                  "type": "file",
+                  "description": "Post-event satellite image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload-pair",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload-pair"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Geospatial Metadata & Validation",
+      "item": [
+        {
+          "name": "Get GeoTIFF Metadata",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/metadata/{{image_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["metadata", "{{image_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Validate Image Pair Compatibility",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"before_image_id\": \"{{image_id}}\",\n  \"after_image_id\": \"{{image_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/compare",
+              "host": ["{{baseUrl}}"],
+              "path": ["compare"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. LangGraph AI Query Processing",
+      "item": [
+        {
+          "name": "Query: Scene Captioning (GeoChat)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_id\": \"{{image_id}}\",\n  \"query\": \"Describe this satellite image in detail.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/query",
+              "host": ["{{baseUrl}}"],
+              "path": ["query"]
+            }
+          }
+        },
+        {
+          "name": "Query: Feature Grounding (GroundingDINO + SAM2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_id\": \"{{image_id}}\",\n  \"query\": \"Where is the river? Highlight all water bodies.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/query",
+              "host": ["{{baseUrl}}"],
+              "path": ["query"]
+            }
+          }
+        },
+        {
+          "name": "Query: Flood Disaster Assessment (Qwen2-VL + SAM2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_id\": \"{{image_id}}\",\n  \"query\": \"Detect flooded areas and evaluate submerged surface.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/query",
+              "host": ["{{baseUrl}}"],
+              "path": ["query"]
+            }
+          }
+        },
+        {
+          "name": "Query: Vegetation Health (NDVI Analysis)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_id\": \"{{image_id}}\",\n  \"query\": \"Analyze agricultural vegetation density and crop canopy.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/query",
+              "host": ["{{baseUrl}}"],
+              "path": ["query"]
+            }
+          }
+        },
+        {
+          "name": "Query: Visual Question Answering (Qwen2-VL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_id\": \"{{image_id}}\",\n  \"query\": \"What is the primary land use pattern visible in this sector?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/query",
+              "host": ["{{baseUrl}}"],
+              "path": ["query"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. ISRO PDF Intelligence Reports",
+      "item": [
+        {
+          "name": "Generate ISRO PDF Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.report_id) {",
+                  "    pm.collectionVariables.set('report_id', jsonData.report_id);",
+                  "    console.log('Saved report_id to collection variable: ' + jsonData.report_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_id\": \"{{image_id}}\",\n  \"query\": \"Detect flooded areas and evaluate submerged surface.\",\n  \"include_charts\": true,\n  \"custom_notes\": \"Ground truthing confirmed by Regional Remote Sensing Centre, Jodhpur.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/report/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["report", "generate"]
+            }
+          }
+        },
+        {
+          "name": "View PDF Report Inline",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/report/view/{{report_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["report", "view", "{{report_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Download PDF Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/report/download/{{report_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["report", "download", "{{report_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Projects & History",
+      "item": [
+        {
+          "name": "List All Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            }
+          }
+        },
+        {
+          "name": "Get Project Chat History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chat-history/{{image_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["chat-history", "{{image_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
